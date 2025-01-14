@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from schemas import DatetimeSchema
+
 
 class CountryBase(BaseModel):
     name: str
@@ -10,7 +12,7 @@ class CountryCreate(CountryBase):
     pass
 
 
-class CountryResponse(CountryBase):
+class CountryResponse(CountryBase, DatetimeSchema):
     id: int
 
     class Config:
@@ -25,7 +27,7 @@ class CityCreate(CityBase):
     country_id: int
     
     
-class CityResponse(CityBase):
+class CityResponse(CityBase, DatetimeSchema):
     id: int
     country: CountryResponse
     

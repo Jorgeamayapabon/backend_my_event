@@ -1,28 +1,40 @@
 from enum import Enum
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, EmailStr
 
-
-class RoleEnum(str, Enum):
-    admin = "admin"
-    owner = "owner"
-    assistant = "assistant"
+from schemas import DatetimeSchema
+from utils.enums import RoleEnum
 
 
 class UserBase(BaseModel):
     fullname: str
-    email: str
+    email: EmailStr
     active: bool
     role: RoleEnum
 
 
-class UserinDB(UserBase):
+class UserUpdateAdmin(BaseModel):
+    fullname: Optional[str] = None
+    email: Optional[EmailStr] = None
+    active: Optional[bool] = None
+    role: Optional[RoleEnum] = None
+
+
+class UserUpdate(BaseModel):
+    fullname: Optional[str] = None
+    email: Optional[EmailStr] = None
+    active: Optional[bool] = None
+
+
+class UserInDB(UserBase):
     hashed_password: str
 
 
 class UserCreate(UserBase):
     password: str
 
-class UserResponse(UserBase):
+
+class UserResponse(UserBase, DatetimeSchema):
     id: int
     
     class Config:

@@ -2,18 +2,20 @@ from db.config import Base
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from models.base import DatetimeModel
 
-class CountryModel(Base):
+
+class CountryModel(Base, DatetimeModel):
     __tablename__ = "countries"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    code = Column(String, index=True, max_length=2)
+    code = Column(String, index=True)
     
     cities = relationship("CityModel", back_populates="country")
 
 
-class CityModel(Base):
+class CityModel(Base, DatetimeModel):
     __tablename__ = "cities"
 
     id = Column(Integer, primary_key=True, index=True)
