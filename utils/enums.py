@@ -10,3 +10,9 @@ class StatusEnum(str, Enum):
 class RoleEnum(str, Enum):
     OWNER = "owner"
     ASSISTANT = "assistant"
+
+
+class RoleEnumInDB(str, Enum):
+    ADMIN = "admin"
+    OWNER = "owner"
+    ASSISTANT = "assistant"

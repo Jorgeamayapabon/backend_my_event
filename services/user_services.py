@@ -29,11 +29,20 @@ class UserServiceHandler:
             detail="No has permission",
             headers={"WWW-Authenticate": "Bearer"},
         )
+        self._email_already_exist = HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="There is already a user with that email",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     def list_users(self):
         return self.db.query(UserModel).all()
 
-    def create_user(self, user: UserCreate):
+    def create_user(self, user: UserCreate, db: Session):
+        db_user = db.query(UserModel).filter(UserModel.email == user.email).first()
+        if db_user:
+            raise self._email_already_exist
+        
         user_schema = user.model_dump()
         user_schema["hashed_password"] = auth.get_password_hash(user_schema["password"])
         user_schema.pop("password")

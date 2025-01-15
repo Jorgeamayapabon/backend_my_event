@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from db.config import get_db
@@ -14,6 +14,7 @@ from schemas.event import (
     SessionCreate,
     SessionResponse,
 )
+from services.elasticsearch_services import index_event_with_relations, search_events
 from services.event_services import EventServiceHandler
 from utils.auths import get_current_user, get_current_user_with_role
 
@@ -150,3 +151,35 @@ def delete_session(
 ):
     service = EventServiceHandler(db)
     return service.delete_session(session_id=session_id, current_user=current_user)
+
+
+@event_router.post("/index/{event_id}")
+def index_event(event_id: int, db: Session = Depends(get_db)):
+    service = EventServiceHandler(db)
+    db_event = service.get_event_by_id(event_id)
+    index_event_with_relations(db_event, db)
+    return {"message": "Event indexed successfully"}
+
+
+def get_filters(
+    status: str = Query(None),
+    date_from: str = Query(None),
+    date_to: str = Query(None),
+    category_name: str = Query(None),
+    location_name: str = Query(None)
+) -> dict:
+    filters = {}
+    if status:
+        filters["status"] = status
+    if date_from and date_to:
+        filters["date"] = {"gte": date_from, "lte": date_to}
+    if category_name:
+        filters["category_name"] = category_name
+    if location_name:
+        filters["location_name"] = location_name
+    return filters
+
+@event_router.post("/search")
+def index_event(query: str, filters: dict = Depends(get_filters)):
+    results = search_events(query, filters)
+    return {"results": results}

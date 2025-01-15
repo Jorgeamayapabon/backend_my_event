@@ -6,7 +6,7 @@ from models.base import DatetimeModel
 
 
 class CategoryModel(Base, DatetimeModel):
-    __tablename__ = "categories"
+    __tablename__ = "category"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)

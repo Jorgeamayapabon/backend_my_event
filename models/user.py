@@ -3,7 +3,7 @@ from db.config import Base
 from sqlalchemy.orm import relationship
 
 from models.base import DatetimeModel
-from utils.enums import RoleEnum
+from utils.enums import RoleEnumInDB
 
 
 class UserModel(Base, DatetimeModel):
@@ -13,7 +13,7 @@ class UserModel(Base, DatetimeModel):
     fullname = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     active = Column(Boolean, default=True)
-    role = Column(SQLAlchemyEnum(RoleEnum), nullable=False)
+    role = Column(SQLAlchemyEnum(RoleEnumInDB), nullable=False)
     hashed_password = Column(String, nullable=False)
 
     events = relationship("EventModel", back_populates="owner")

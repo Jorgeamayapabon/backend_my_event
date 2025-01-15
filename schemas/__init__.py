@@ -4,5 +4,5 @@ from pydantic import BaseModel
 
 
 class DatetimeSchema(BaseModel):
-    create_at: datetime
-    update_at: datetime
+    created_at: datetime
+    updated_at: datetime

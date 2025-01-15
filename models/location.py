@@ -6,7 +6,7 @@ from models.base import DatetimeModel
 
 
 class CountryModel(Base, DatetimeModel):
-    __tablename__ = "countries"
+    __tablename__ = "country"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
@@ -16,10 +16,10 @@ class CountryModel(Base, DatetimeModel):
 
 
 class CityModel(Base, DatetimeModel):
-    __tablename__ = "cities"
+    __tablename__ = "city"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    country_id = Column(Integer, ForeignKey("countries.id"), nullable=False)
+    country_id = Column(Integer, ForeignKey("country.id"), nullable=False)
     
     country = relationship("CountryModel", back_populates="cities")	

@@ -25,7 +25,7 @@ def list_users(
 @router.post("", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     service = UserServiceHandler(db)
-    return service.create_user(user)
+    return service.create_user(user, db)
 
 
 @router.get("/{user_id}", response_model=UserResponse)

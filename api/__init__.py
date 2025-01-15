@@ -1,15 +1,15 @@
 from fastapi import APIRouter
-from .users import router as users_router
-from .locations import router as locations_router
-from .events import event_router as events_router
-from .events import session_router as sessions_router
-from .categories import router as categories_router
+from .user import router as user_router
+from .location import router as location_router
+from .event import event_router
+from .event import session_router
+from .category import router as category_router
 
 
 api_router = APIRouter()
 
-api_router.include_router(users_router, prefix="/users", tags=["Users"])
-api_router.include_router(locations_router, prefix="/locations", tags=["Locations"])
-api_router.include_router(events_router, prefix="/events", tags=["Events"])
-api_router.include_router(sessions_router, prefix="/sessions", tags=["Sessions"])
-api_router.include_router(categories_router, prefix="/categories", tags=["Categories"])
+api_router.include_router(user_router, prefix="/user", tags=["User"])
+api_router.include_router(location_router, prefix="/location", tags=["Location"])
+api_router.include_router(event_router, prefix="/event", tags=["Event"])
+api_router.include_router(session_router, prefix="/session", tags=["Session"])
+api_router.include_router(category_router, prefix="/category", tags=["Category"])
