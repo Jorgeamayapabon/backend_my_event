@@ -7,7 +7,23 @@ from sqlalchemy.orm import Session
 
 
 class EventServiceHandler:
+    """
+    Handles all event-related operations, including event management and session management.
+
+    Attributes:
+        db (Session): The database session used to interact with the database.
+        _event_not_found (HTTPException): Exception raised when an event is not found.
+        _session_not_found (HTTPException): Exception raised when a session is not found.
+        _forbidden_by_no_owner (HTTPException): Exception raised when the user is not the owner of the event.
+    """
+    
     def __init__(self, db: Session):
+        """
+        Initializes the service handler with a database session.
+
+        Args:
+            db (Session): The database session used to interact with the database.
+        """
         self.db = db
         self._event_not_found = HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -23,9 +39,24 @@ class EventServiceHandler:
         )
 
     def list_events(self):
+        """
+        Retrieves a list of all events.
+
+        Returns:
+            list: A list of all events from the database.
+        """
         return self.db.query(EventModel).all()
 
     def create_event(self, event: EventCreate):
+        """
+        Creates a new event in the database.
+
+        Args:
+            event (EventCreate): The event data to create a new event.
+
+        Returns:
+            EventModel: The created event.
+        """
         event = EventModel(**event.model_dump())
         self.db.add(event)
         self.db.commit()
@@ -33,6 +64,18 @@ class EventServiceHandler:
         return event
     
     def get_event_by_id(self, event_id: int):
+        """
+        Retrieves an event by its ID.
+
+        Args:
+            event_id (int): The ID of the event to retrieve.
+
+        Returns:
+            EventModel: The event with the specified ID.
+
+        Raises:
+            HTTPException: If the event is not found.
+        """
         db_event = self.db.query(EventModel).filter(EventModel.id == event_id).first()
         if not db_event:
             raise self._event_not_found
@@ -40,6 +83,20 @@ class EventServiceHandler:
         return db_event
         
     def update_event(self, event_id: int, event: EventUpdate, current_user: UserModel):
+        """
+        Updates an existing event by its ID.
+
+        Args:
+            event_id (int): The ID of the event to update.
+            event (EventUpdate): The updated event data.
+            current_user (UserModel): The current user performing the update.
+
+        Returns:
+            EventModel: The updated event.
+
+        Raises:
+            HTTPException: If the event is not found or if the current user is not the owner.
+        """
         db_event = self.db.query(EventModel).filter(EventModel.id == event_id).first()
         if not db_event:
             raise self._event_not_found
@@ -57,6 +114,19 @@ class EventServiceHandler:
         return db_event
 
     def delete_event(self, event_id: int, current_user: UserModel):
+        """
+        Deletes an event by its ID.
+
+        Args:
+            event_id (int): The ID of the event to delete.
+            current_user (UserModel): The current user performing the delete.
+
+        Returns:
+            EventModel: The deleted event.
+
+        Raises:
+            HTTPException: If the event is not found or if the current user is not the owner.
+        """
         db_event = self.db.query(EventModel).filter(EventModel.id == event_id).first()
         if not db_event:
             raise self._event_not_found
@@ -69,6 +139,16 @@ class EventServiceHandler:
         return db_event
     
     def create_ticket(self, event_id: int, current_user: UserModel):
+        """
+        Creates a ticket for an event for a given user.
+
+        Args:
+            event_id (int): The ID of the event to create a ticket for.
+            current_user (UserModel): The user who will receive the ticket.
+
+        Returns:
+            EventTicketModel: The created event ticket.
+        """
         event_ticket = EventTicketModel(
             event_id=event_id,
             user_id=current_user.id
@@ -79,6 +159,18 @@ class EventServiceHandler:
         return event_ticket
     
     def list_sessions_by_event(self, event_id: int):
+        """
+        Retrieves all sessions related to a specific event.
+
+        Args:
+            event_id (int): The ID of the event to retrieve sessions for.
+
+        Returns:
+            list: A list of sessions associated with the event.
+
+        Raises:
+            HTTPException: If the event is not found.
+        """
         db_event = self.db.query(EventModel).filter(EventModel.id == event_id).first()
         if not db_event:
             raise self._event_not_found
@@ -86,9 +178,29 @@ class EventServiceHandler:
         return db_event.sessions
     
     def list_all_sessions(self):
+        """
+        Retrieves a list of all sessions.
+
+        Returns:
+            list: A list of all sessions from the database.
+        """
         return self.db.query(SessionModel).all()
     
     def create_session(self, event_id: int, session: SessionCreate, current_user: UserModel):
+        """
+        Creates a new session for a specific event.
+
+        Args:
+            event_id (int): The ID of the event to create the session for.
+            session (SessionCreate): The session data to create the new session.
+            current_user (UserModel): The current user performing the creation.
+
+        Returns:
+            SessionModel: The created session.
+
+        Raises:
+            HTTPException: If the event is not found or if the current user is not the owner.
+        """
         session_schema = session.model_dump()
         session_schema["event_id"] = event_id
         
@@ -104,6 +216,18 @@ class EventServiceHandler:
         return db_session
     
     def get_session_by_id(self, session_id: int):
+        """
+        Retrieves a session by its ID.
+
+        Args:
+            session_id (int): The ID of the session to retrieve.
+
+        Returns:
+            SessionModel: The session with the specified ID.
+
+        Raises:
+            HTTPException: If the session is not found.
+        """
         db_session = self.db.query(SessionModel).filter(SessionModel.id == session_id).first()
         if not db_session:
             raise self._session_not_found
@@ -111,6 +235,20 @@ class EventServiceHandler:
         return db_session
     
     def update_session(self, session_id: int, session: SessionCreate, current_user: UserModel):
+        """
+        Updates an existing session by its ID.
+
+        Args:
+            session_id (int): The ID of the session to update.
+            session (SessionCreate): The updated session data.
+            current_user (UserModel): The current user performing the update.
+
+        Returns:
+            SessionModel: The updated session.
+
+        Raises:
+            HTTPException: If the session is not found or if the current user is not the owner.
+        """
         db_session = self.db.query(SessionModel).filter(SessionModel.id == session_id).first()
         if not db_session:
             raise self._session_not_found
@@ -130,6 +268,19 @@ class EventServiceHandler:
         return db_session
     
     def delete_session(self, session_id: int, current_user: UserModel):
+        """
+        Deletes a session by its ID.
+
+        Args:
+            session_id (int): The ID of the session to delete.
+            current_user (UserModel): The current user performing the delete.
+
+        Returns:
+            SessionModel: The deleted session.
+
+        Raises:
+            HTTPException: If the session is not found or if the current user is not the owner.
+        """
         db_session = self.db.query(SessionModel).filter(SessionModel.id == session_id).first()
         if not db_session:
             raise self._session_not_found

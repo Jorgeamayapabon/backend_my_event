@@ -8,7 +8,7 @@ from schemas.location import CityCreate, CityResponse, CountryCreate, CountryRes
 from services.location_services import LocationServiceHandler
 from utils.auths import get_current_user_with_role
 
-
+# Create a router for location-related endpoints
 router = APIRouter()
 
 
@@ -17,6 +17,16 @@ def list_countries(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
 ):
+    """
+    Retrieve a list of all countries.
+
+    Args:
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin" or "owner".
+
+    Returns:
+        List[CountryResponse]: A list of country objects.
+    """
     service = LocationServiceHandler(db)
     return service.list_countries()
 
@@ -27,6 +37,17 @@ def create_country(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
 ):
+    """
+    Create a new country.
+
+    Args:
+        country (CountryCreate): The data required to create a country.
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin" or "owner".
+
+    Returns:
+        CountryResponse: The newly created country object.
+    """
     service = LocationServiceHandler(db)
     return service.create_country(country)
 
@@ -36,8 +57,18 @@ def list_cities(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
 ):
+    """
+    Retrieve a list of all cities.
+
+    Args:
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin" or "owner".
+
+    Returns:
+        List[CityResponse]: A list of city objects.
+    """
     service = LocationServiceHandler(db)
-    service.list_cities()
+    return service.list_cities()  # Fixed the missing return statement
 
 
 @router.post("/city", response_model=CityResponse)
@@ -46,5 +77,16 @@ def create_city(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
 ):
+    """
+    Create a new city.
+
+    Args:
+        city (CityCreate): The data required to create a city.
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin" or "owner".
+
+    Returns:
+        CityResponse: The newly created city object.
+    """
     service = LocationServiceHandler(db)
     return service.create_city(city)

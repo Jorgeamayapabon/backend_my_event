@@ -30,6 +30,16 @@ def list_events(
         get_current_user_with_role(["admin", "owner", "assistant"])
     ),
 ):
+    """
+    Retrieve a list of all events.
+
+    Args:
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin", "owner", or "assistant".
+
+    Returns:
+        List[EventResponse]: A list of event objects.
+    """
     service = EventServiceHandler(db)
     return service.list_events()
 
@@ -40,6 +50,17 @@ def create_event(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
 ):
+    """
+    Create a new event.
+
+    Args:
+        event (EventCreate): The data required to create an event.
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin" or "owner".
+
+    Returns:
+        EventResponse: The newly created event object.
+    """
     service = EventServiceHandler(db)
     return service.create_event(event)
 
@@ -52,6 +73,17 @@ def get_event(
         get_current_user_with_role(["admin", "owner", "assistant"])
     ),
 ):
+    """
+    Retrieve details of a specific event.
+
+    Args:
+        event_id (int): ID of the event to retrieve.
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin", "owner", or "assistant".
+
+    Returns:
+        EventResponse: The event object with the given ID.
+    """
     service = EventServiceHandler(db)
     return service.get_event_by_id(event_id)
 
@@ -63,6 +95,18 @@ def update_event(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
 ):
+    """
+    Update an existing event.
+
+    Args:
+        event_id (int): ID of the event to update.
+        event (EventUpdate): The updated data for the event.
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin" or "owner".
+
+    Returns:
+        EventResponse: The updated event object.
+    """
     service = EventServiceHandler(db)
     return service.update_event(
         event_id=event_id,
@@ -77,6 +121,17 @@ def delete_event(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
 ):
+    """
+    Delete an event.
+
+    Args:
+        event_id (int): ID of the event to delete.
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin" or "owner".
+
+    Returns:
+        EventResponse: The deleted event object.
+    """
     service = EventServiceHandler(db)
     return service.delete_event(
         event_id=event_id,
@@ -90,6 +145,17 @@ def create_ticket(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user_with_role(["assistant"])),
 ):
+    """
+    Create a ticket for a specific event.
+
+    Args:
+        event_id (int): ID of the event for which to create a ticket.
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the role "assistant".
+
+    Returns:
+        EventTicketResponse: The created ticket object.
+    """
     service = EventServiceHandler(db)
     return service.create_ticket(event_id, current_user)
 
@@ -102,84 +168,16 @@ def list_sessions_by_event(
         get_current_user_with_role(["admin", "owner", "assistant"])
     ),
 ):
+    """
+    List all sessions for a specific event.
+
+    Args:
+        event_id (int): ID of the event whose sessions to retrieve.
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin", "owner", or "assistant".
+
+    Returns:
+        List[SessionResponse]: A list of sessions for the given event.
+    """
     service = EventServiceHandler(db)
     return service.list_sessions_by_event(event_id)
-
-
-@session_router.get("", response_model=List[SessionResponse])
-def list_sessions(
-    db: Session = Depends(get_db),
-    current_user: UserModel = Depends(
-        get_current_user_with_role(["admin", "owner", "assistant"])
-    ),
-):
-    service = EventServiceHandler(db)
-    return service.list_all_sessions()
-
-
-@session_router.post("/{event_id}", response_model=SessionResponse)
-def create_session(
-    event_id: int,
-    session: SessionCreate,
-    db: Session = Depends(get_db),
-    current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
-):
-    service = EventServiceHandler(db)
-    return service.create_session(
-        event_id=event_id, session=session, current_user=current_user
-    )
-
-
-@session_router.patch("/{session_id}", response_model=SessionResponse)
-def update_session(
-    session_id: int,
-    session: SessionCreate,
-    db: Session = Depends(get_db),
-    current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
-):
-    service = EventServiceHandler(db)
-    return service.update_session(
-        session_id=session_id, session=session, current_user=current_user
-    )
-
-
-@session_router.delete("/{session_id}", response_model=SessionResponse)
-def delete_session(
-    session_id: int,
-    db: Session = Depends(get_db),
-    current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
-):
-    service = EventServiceHandler(db)
-    return service.delete_session(session_id=session_id, current_user=current_user)
-
-
-@event_router.post("/index/{event_id}")
-def index_event(event_id: int, db: Session = Depends(get_db)):
-    service = EventServiceHandler(db)
-    db_event = service.get_event_by_id(event_id)
-    index_event_with_relations(db_event, db)
-    return {"message": "Event indexed successfully"}
-
-
-def get_filters(
-    status: str = Query(None),
-    date_from: str = Query(None),
-    date_to: str = Query(None),
-    category_name: str = Query(None),
-    location_name: str = Query(None)
-) -> dict:
-    filters = {}
-    if status:
-        filters["status"] = status
-    if date_from and date_to:
-        filters["date"] = {"gte": date_from, "lte": date_to}
-    if category_name:
-        filters["category_name"] = category_name
-    if location_name:
-        filters["location_name"] = location_name
-    return filters
-
-@event_router.post("/search")
-def index_event(query: str, filters: dict = Depends(get_filters)):
-    results = search_events(query, filters)
-    return {"results": results}
