@@ -1,11 +1,13 @@
 from datetime import datetime
 from typing import Optional
 from fastapi import HTTPException, status
+from models.category import CategoryModel
 from models.event import EventModel, EventTicketModel, SessionModel
+from models.location import CityModel
 from models.user import UserModel
 from schemas.event import EventCreate, EventUpdate, SessionCreate
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 
 class EventServiceHandler:
@@ -324,3 +326,31 @@ class EventServiceHandler:
             query = query.filter(EventModel.category_id == category_id)
 
         return query.offset(offset).limit(limit).all()
+
+    
+    def filter_events_with_related_names(
+        self,
+        location_name: Optional[str] = None,
+        category_name: Optional[str] = None,
+        **filters
+    ):
+        query = self.db.query(EventModel).join(EventModel.location).join(EventModel.category)
+
+        # Filtros relacionados
+        if location_name:
+            query = query.filter(CityModel.name.ilike(f"%{location_name}%"))
+        if category_name:
+            query = query.filter(CategoryModel.name.ilike(f"%{category_name}%"))
+
+        # Filtros adicionales (usando los filtros dinámicos mencionados antes)
+        for field, value in filters.items():
+            if field == "offset" or field == "limit":
+                continue
+            
+            if value is not None:
+                query = query.filter(getattr(EventModel, field) == value)
+
+        return query.options(
+            joinedload(EventModel.location),
+            joinedload(EventModel.category)
+        ).offset(filters["offset"]).limit(filters["limit"]).all()

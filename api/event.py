@@ -39,7 +39,8 @@ def list_events(
     category_id: Optional[int] = Query(None, description="Filter by category ID"),
     offset: int = Query(0, ge=0, description="Number of records to skip"),
     limit: int = Query(10, gt=0, description="Maximum number of records to retrieve"),
-
+    location_name: Optional[str] = Query(None, description="Filter by location name"),
+    category_name: Optional[str] = Query(None, description="Filter by category name"),
 ):
     """
     Retrieve a list of all events.
@@ -59,7 +60,7 @@ def list_events(
         List[EventResponse]: A list of event objects.
     """
     service = EventServiceHandler(db)
-    return service.filter_events(
+    return service.filter_events_with_related_names(
         name=name,
         min_date=min_date,
         max_date=max_date,
@@ -68,6 +69,8 @@ def list_events(
         category_id=category_id,
         offset=offset,
         limit=limit,
+        location_name=location_name,
+        category_name=category_name,
     )
 
 
