@@ -52,6 +52,8 @@ def list_events(
         status (Optional[StatusEnum], optional): Filter by status. Defaults to None.
         location_id (Optional[int], optional): Filter by location ID. Defaults to None.
         category_id (Optional[int], optional): Filter by category ID. Defaults to None.
+        offset (int, optional): Number of records to skip. Defaults to 0.
+        limit (int, optional): Maximum number of records to retrieve. Defaults to 10.
 
     Returns:
         List[EventResponse]: A list of event objects.
