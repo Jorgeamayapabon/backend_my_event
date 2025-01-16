@@ -31,9 +31,3 @@ class CategoryModel(Base, DatetimeModel):
         index=True, 
         doc="The name of the category, used for display and identification."
     )
-
-    events = relationship(
-        "EventModel", 
-        back_populates="category", 
-        doc="A relationship to the EventModel for accessing related events."
-    )

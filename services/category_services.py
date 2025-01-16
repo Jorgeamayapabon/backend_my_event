@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from models.category import CategoryModel
+from schemas.category import CategoryCreate
 
 
 class CategoryServiceHandler:
@@ -31,7 +32,7 @@ class CategoryServiceHandler:
         """
         return self.db.query(CategoryModel).all()
     
-    def create_category(self, category):
+    def create_category(self, category: CategoryCreate):
         """
         Creates a new category in the database.
 
@@ -41,7 +42,7 @@ class CategoryServiceHandler:
         Returns:
             CategoryModel: The newly created category instance, including the generated ID and other fields.
         """
-        db_category = CategoryModel(**category.dict())
+        db_category = CategoryModel(**category.model_dump())
         self.db.add(db_category)
         self.db.commit()
         self.db.refresh(db_category)

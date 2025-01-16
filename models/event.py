@@ -88,6 +88,7 @@ class EventModel(Base, DatetimeModel):
     )
     category = relationship(
         "CategoryModel",
+        # back_populates="events",
         doc="Relationship to the CategoryModel for event categorization.",
     )
     tickets = relationship(

@@ -8,6 +8,15 @@ from schemas.location import CityResponse
 from utils.enums import StatusEnum
 
 
+class EventFilter(BaseModel):
+    name: Optional[str]
+    min_date: Optional[datetime]
+    max_date: Optional[datetime]
+    status: Optional[StatusEnum]
+    location_id: Optional[int]
+    category_id: Optional[int]
+
+
 class EventBase(BaseModel):
     """
     A base schema for event-related operations.

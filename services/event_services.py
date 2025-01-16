@@ -1,3 +1,5 @@
+from datetime import datetime
+from typing import Optional
 from fastapi import HTTPException, status
 from models.event import EventModel, EventTicketModel, SessionModel
 from models.user import UserModel
@@ -293,3 +295,32 @@ class EventServiceHandler:
         self.db.delete(db_session)
         self.db.commit()
         return db_session
+
+    def filter_events(
+        self,
+        offset: int,
+        limit: int,
+        name: Optional[str] = None,
+        min_date: Optional[datetime] = None,
+        max_date: Optional[datetime] = None,
+        status: Optional[str] = None,
+        location_id: Optional[int] = None,
+        category_id: Optional[int] = None,
+    ):
+        query = self.db.query(EventModel)
+        
+        # Agregar filtros dinámicos
+        if name:
+            query = query.filter(EventModel.name.ilike(f"%{name}%"))
+        if min_date:
+            query = query.filter(EventModel.date >= min_date)
+        if max_date:
+            query = query.filter(EventModel.date <= max_date)
+        if status:
+            query = query.filter(EventModel.status == status)
+        if location_id:
+            query = query.filter(EventModel.location_id == location_id)
+        if category_id:
+            query = query.filter(EventModel.category_id == category_id)
+
+        return query.offset(offset).limit(limit).all()

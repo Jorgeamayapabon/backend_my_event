@@ -1,8 +1,8 @@
 """migrate all models
 
-Revision ID: 8e11ac7ac483
+Revision ID: 8e6ff7953d4f
 Revises: 
-Create Date: 2025-01-14 22:50:19.619196
+Create Date: 2025-01-15 22:00:47.362486
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '8e11ac7ac483'
+revision: str = '8e6ff7953d4f'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -97,9 +97,10 @@ def upgrade() -> None:
     sa.Column('event_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=True),
     sa.Column('description', sa.Text(), nullable=True),
-    sa.Column('date', sa.DateTime(), nullable=True),
-    sa.Column('location', sa.String(), nullable=True),
+    sa.Column('start_time', sa.DateTime(), nullable=True),
+    sa.Column('end_time', sa.DateTime(), nullable=True),
     sa.Column('capacity', sa.Integer(), nullable=True),
+    sa.Column('speaker', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['event_id'], ['event.id'], ),

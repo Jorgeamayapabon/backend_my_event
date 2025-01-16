@@ -1,4 +1,5 @@
-from typing import List
+from datetime import datetime
+from typing import List, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
@@ -17,6 +18,7 @@ from schemas.event import (
 from services.elasticsearch_services import index_event_with_relations, search_events
 from services.event_services import EventServiceHandler
 from utils.auths import get_current_user, get_current_user_with_role
+from utils.enums import StatusEnum
 
 
 event_router = APIRouter()
@@ -29,19 +31,42 @@ def list_events(
     current_user: UserModel = Depends(
         get_current_user_with_role(["admin", "owner", "assistant"])
     ),
+    name: Optional[str] = Query(None, description="Filter by event name"),
+    min_date: Optional[datetime] = Query(None, description="Filter by minimum date"),
+    max_date: Optional[datetime] = Query(None, description="Filter by maximum date"),
+    status: Optional[StatusEnum] = Query(None, description="Filter by status"),
+    location_id: Optional[int] = Query(None, description="Filter by location ID"),
+    category_id: Optional[int] = Query(None, description="Filter by category ID"),
+    offset: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(10, gt=0, description="Maximum number of records to retrieve"),
+
 ):
     """
     Retrieve a list of all events.
-
+    
     Args:
         db (Session): Database session dependency.
         current_user (UserModel): Current authenticated user with the roles "admin", "owner", or "assistant".
+        min_date (Optional[datetime], optional): Filter by minimum date. Defaults to None.
+        max_date (Optional[datetime], optional): Filter by maximum date. Defaults to None.
+        status (Optional[StatusEnum], optional): Filter by status. Defaults to None.
+        location_id (Optional[int], optional): Filter by location ID. Defaults to None.
+        category_id (Optional[int], optional): Filter by category ID. Defaults to None.
 
     Returns:
         List[EventResponse]: A list of event objects.
     """
     service = EventServiceHandler(db)
-    return service.list_events()
+    return service.filter_events(
+        name=name,
+        min_date=min_date,
+        max_date=max_date,
+        status=status,
+        location_id=location_id,
+        category_id=category_id,
+        offset=offset,
+        limit=limit,
+    )
 
 
 @event_router.post("", response_model=EventResponse)
