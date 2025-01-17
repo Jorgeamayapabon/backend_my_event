@@ -1,0 +1,46 @@
+# Ignorar archivos y directorios comunes
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.sqlite3
+
+# Carpetas del entorno virtual
+venv/
+env/
+
+# Archivos de configuración y credenciales locales
+*.env
+.env.*
+
+# Archivos de configuración de editores
+*.idea/
+*.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Dependencias locales
+# poetry.lock
+node_modules/
+
+# Archivos de control de versiones
+.git/
+.gitignore
+.gitattributes
+
+# Logs y resultados temporales
+*.log
+*.bak
+*.swp
+*.tmp
+*.out
+
+# Datos temporales o de pruebas
+tests/__pycache__/
+tests/tmp/
+tmp/
