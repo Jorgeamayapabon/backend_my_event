@@ -3,6 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from celery_worker.tasks import process_ticket
 from db.config import get_db
 from models.event import EventModel
 from models.user import UserModel
@@ -169,7 +170,7 @@ def delete_event(
     )
 
 
-@event_router.post("/ticket/{event_id}", response_model=EventTicketResponse)
+@event_router.post("/ticket/{event_id}")
 def create_ticket(
     event_id: int,
     db: Session = Depends(get_db),
@@ -186,8 +187,10 @@ def create_ticket(
     Returns:
         EventTicketResponse: The created ticket object.
     """
-    service = EventServiceHandler(db)
-    return service.create_ticket(event_id, current_user)
+    process_ticket.delay(event_id, current_user.id)
+    # service = EventServiceHandler(db)
+    # return service.create_ticket(event_id, current_user)
+    return {"message": "Ticket creation process started."}
 
 
 @session_router.get("/{event_id}", response_model=List[SessionResponse])
@@ -211,3 +214,29 @@ def list_sessions_by_event(
     """
     service = EventServiceHandler(db)
     return service.list_sessions_by_event(event_id)
+
+
+@session_router.post("/{event_id}", response_model=SessionResponse)
+def create_session(
+    session: SessionCreate,
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),
+):
+    """
+    Create a new session for an event.
+
+    Args:
+        session (SessionCreate): The data required to create a session.
+        db (Session): Database session dependency.
+        current_user (UserModel): Current authenticated user with the roles "admin" or "owner".
+
+    Returns:
+        SessionResponse: The newly created session object.
+    """
+    service = EventServiceHandler(db)
+    return service.create_session(
+        session=session,
+        event_id=event_id,
+        current_user=current_user,
+    )

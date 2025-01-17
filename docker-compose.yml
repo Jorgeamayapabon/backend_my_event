@@ -7,6 +7,8 @@ services:
     depends_on:
       - db
       - elasticsearch
+      - redis
+      - celery_worker
     env_file:
       - .env
     environment:
@@ -15,13 +17,13 @@ services:
       - PSQL_PASSWORD=${PSQL_PASSWORD}
       - PSQL_HOST=db
       - PSQL_PORT=${PSQL_PORT}
-      - SECRET_KEY="${SECRET_KEY}"
-      - ALGORITHM="${ALGORITHM}"
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
       - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - CELERY_BROKER_URL=redis://redis:6379/0
     ports:
       - "8000:8000"
-
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    command: bash -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
   db:
     image: postgres:15
@@ -49,6 +51,47 @@ services:
     volumes:
       - es_data:/usr/share/elasticsearch/data
 
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    build: .
+    container_name: celery_worker
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - .env
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_BACKEND_URL=redis://redis:6379/0
+      - PSQL_DB=${PSQL_DB}
+      - PSQL_USERNAME=${PSQL_USERNAME}
+      - PSQL_PASSWORD=${PSQL_PASSWORD}
+      - PSQL_HOST=db
+      - PSQL_PORT=${PSQL_PORT}
+    command: celery -A celery_worker.celery_app worker --loglevel=info
+    volumes:
+      - .:/app
+
+  flower:
+    container_name: flower
+    build: .
+    command: celery -A celery_worker.celery_app flower --port=5555
+    ports:
+      - 5556:5555
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_BACKEND_URL=redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
+      - celery_worker
+    volumes:
+      - .:/app
 volumes:
   postgres_data:
   es_data:

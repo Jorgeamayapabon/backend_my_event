@@ -51,3 +51,4 @@ class CityModel(Base, DatetimeModel):
     
     # Relationship to the CountryModel for the associated country
     country = relationship("CountryModel", back_populates="cities", doc="Relationship to the CountryModel to link the city to its country.")
+    events = relationship("EventModel", back_populates="location", doc="Relationship to the EventModel for events in the city.")

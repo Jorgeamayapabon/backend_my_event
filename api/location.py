@@ -52,7 +52,7 @@ def create_country(
     return service.create_country(country)
 
 
-@router.get("/city", response_model=CityResponse)
+@router.get("/city", response_model=List[CityResponse])
 def list_cities(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user_with_role(["admin", "owner"])),

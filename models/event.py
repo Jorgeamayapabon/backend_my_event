@@ -84,6 +84,7 @@ class EventModel(Base, DatetimeModel):
     # Relationships to other models
     location = relationship(
         "CityModel",
+        back_populates="events",
         doc="Relationship to the CityModel representing the event's location.",
     )
     category = relationship(

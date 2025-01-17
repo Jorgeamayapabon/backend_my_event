@@ -1,6 +1,6 @@
 # Usamos la imagen base de Python
 FROM python:3.12-slim
-
+ENV PYTHONUNBUFFERED=1
 # Establecemos el directorio de trabajo
 WORKDIR /app
 
