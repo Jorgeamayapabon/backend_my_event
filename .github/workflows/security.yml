@@ -1,0 +1,79 @@
+name: Seguridad con DefectDojo
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  security_scan:
+    name: Escaneo de Seguridad y Envío a DefectDojo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠️ Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 📦 Instalar herramientas de seguridad
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit bandit
+          sudo apt update && sudo apt install -y trivy
+
+      - name: 🔍 Escaneo de dependencias (SCA) con pip-audit
+        run: pip-audit --format=json --output pip-audit.json || true
+
+      - name: 🔍 Análisis estático (SAST) con Bandit
+        run: bandit -r . -f json -o bandit.json || true
+
+      - name: 🐳 Escaneo de contenedores con Trivy
+        run: trivy image --format json -o trivy.json ubuntu:latest || true
+
+      - name: 📤 Subir reportes a DefectDojo
+        run: |
+          curl -X POST "https://1064-186-169-67-103.ngrok-free.app/api/v2/import-scan/" \
+          -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "scan_type": "Dependency Check",
+            "engagement": 1,
+            "active": true,
+            "verified": true,
+            "file": "'"$(base64 pip-audit.json)"'",
+            "scan_date": "'$(date +%Y-%m-%d)'",
+            "tags": "SCA"
+          }'
+
+          curl -X POST "https://1064-186-169-67-103.ngrok-free.app/api/v2/import-scan/" \
+          -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "scan_type": "Bandit Scan",
+            "engagement": 1,
+            "active": true,
+            "verified": true,
+            "file": "'"$(base64 bandit.json)"'",
+            "scan_date": "'$(date +%Y-%m-%d)'",
+            "tags": "SAST"
+          }'
+
+          curl -X POST "https://1064-186-169-67-103.ngrok-free.app/api/v2/import-scan/" \
+          -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "scan_type": "Container Scan",
+            "engagement": 1,
+            "active": true,
+            "verified": true,
+            "file": "'"$(base64 trivy.json)"'",
+            "scan_date": "'$(date +%Y-%m-%d)'",
+            "tags": "Container"
+          }'
