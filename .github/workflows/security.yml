@@ -39,41 +39,112 @@ jobs:
 
       - name: 📤 Subir reportes a DefectDojo
         run: |
-          curl -X POST "https://1064-186-169-67-103.ngrok-free.app/api/v2/import-scan/" \
-          -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "scan_type": "Dependency Check",
-            "engagement": 1,
-            "active": true,
-            "verified": true,
-            "file": "'"$(base64 pip-audit.json)"'",
-            "scan_date": "'$(date +%Y-%m-%d)'",
-            "tags": "SCA"
-          }'
+          curl -X 'POST' \
+          'https://1064-186-169-67-103.ngrok-free.app/api/v2/import-scan/' \
+          -H 'accept: application/json' \
+          -H 'Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}' \
+          -H 'Content-Type: multipart/form-data' \
+          -F 'product_type_name=' \
+          -F 'active=' \
+          -F 'endpoint_to_add=' \
+          -F 'verified=' \
+          -F 'close_old_findings=' \
+          -F 'test_title=' \
+          -F 'engagement_name=python-sca' \
+          -F 'build_id=' \
+          -F 'deduplication_on_engagement=true' \
+          -F 'push_to_jira=' \
+          -F 'minimum_severity=Info' \
+          -F 'close_old_findings_product_scope=' \
+          -F 'apply_tags_to_endpoints=' \
+          -F 'create_finding_groups_for_all_findings=' \
+          -F 'engagement_end_date=' \
+          -F 'environment=' \
+          -F 'service=' \
+          -F 'commit_hash=' \
+          -F 'group_by=file_path' \
+          -F 'version=' \
+          -F 'tags=' \
+          -F 'apply_tags_to_findings=' \
+          -F 'api_scan_configuration=' \
+          -F 'product_name=Vulns' \
+          -F 'file=@pip-audit.json;type=application/json' \
+          -F 'auto_create_context=true' \
+          -F 'lead=' \
+          -F 'scan_type=pip-audit Scan' \
+          -F 'branch_tag=' \
+          -F 'source_code_management_uri=' \
+          -F 'engagement=' \
+          -F 'scan_date=' \
 
           curl -X POST "https://1064-186-169-67-103.ngrok-free.app/api/v2/import-scan/" \
           -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "scan_type": "Bandit Scan",
-            "engagement": 1,
-            "active": true,
-            "verified": true,
-            "file": "'"$(base64 bandit.json)"'",
-            "scan_date": "'$(date +%Y-%m-%d)'",
-            "tags": "SAST"
-          }'
+          -H 'Content-Type: multipart/form-data' \
+          -F 'product_type_name=' \
+          -F 'active=' \
+          -F 'endpoint_to_add=' \
+          -F 'verified=' \
+          -F 'close_old_findings=' \
+          -F 'test_title=' \
+          -F 'engagement_name=python-sca' \
+          -F 'build_id=' \
+          -F 'deduplication_on_engagement=true' \
+          -F 'push_to_jira=' \
+          -F 'minimum_severity=Info' \
+          -F 'close_old_findings_product_scope=' \
+          -F 'apply_tags_to_endpoints=' \
+          -F 'create_finding_groups_for_all_findings=' \
+          -F 'engagement_end_date=' \
+          -F 'environment=' \
+          -F 'service=' \
+          -F 'commit_hash=' \
+          -F 'group_by=file_path' \
+          -F 'version=' \
+          -F 'tags=' \
+          -F 'apply_tags_to_findings=' \
+          -F 'api_scan_configuration=' \
+          -F 'product_name=Vulns' \
+          -F 'file=@bandit.json;type=application/json' \
+          -F 'auto_create_context=true' \
+          -F 'lead=' \
+          -F 'scan_type=Bandit Scan' \
+          -F 'branch_tag=' \
+          -F 'source_code_management_uri=' \
+          -F 'engagement=' \
+          -F 'scan_date=' \
 
           curl -X POST "https://1064-186-169-67-103.ngrok-free.app/api/v2/import-scan/" \
           -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "scan_type": "Container Scan",
-            "engagement": 1,
-            "active": true,
-            "verified": true,
-            "file": "'"$(base64 trivy.json)"'",
-            "scan_date": "'$(date +%Y-%m-%d)'",
-            "tags": "Container"
-          }'
+          -H 'Content-Type: multipart/form-data' \
+          -F 'product_type_name=' \
+          -F 'active=' \
+          -F 'endpoint_to_add=' \
+          -F 'verified=' \
+          -F 'close_old_findings=' \
+          -F 'test_title=' \
+          -F 'engagement_name=python-sca' \
+          -F 'build_id=' \
+          -F 'deduplication_on_engagement=true' \
+          -F 'push_to_jira=' \
+          -F 'minimum_severity=Info' \
+          -F 'close_old_findings_product_scope=' \
+          -F 'apply_tags_to_endpoints=' \
+          -F 'create_finding_groups_for_all_findings=' \
+          -F 'engagement_end_date=' \
+          -F 'environment=' \
+          -F 'service=' \
+          -F 'commit_hash=' \
+          -F 'group_by=file_path' \
+          -F 'version=' \
+          -F 'tags=' \
+          -F 'apply_tags_to_findings=' \
+          -F 'api_scan_configuration=' \
+          -F 'product_name=Vulns' \
+          -F 'file=@trivy.json;type=application/json' \
+          -F 'auto_create_context=true' \
+          -F 'lead=' \
+          -F 'scan_type=Trivy Scan' \
+          -F 'branch_tag=' \
+          -F 'source_code_management_uri=' \
+          -F 'engagement=' \
+          -F 'scan_date=' \
