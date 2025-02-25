@@ -1,0 +1,165 @@
+name: Seguridad con DefectDojo
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  security_scan:
+    name: Escaneo de Seguridad y Envío a DefectDojo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠️ Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: 📦 Instalar herramientas de seguridad
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit bandit
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.59.1/trivy_0.59.1_Linux-64bit.deb && sudo dpkg -i trivy_0.59.1_Linux-64bit.deb
+
+      - name: 🔍 Escaneo de dependencias (SCA) con pip-audit
+        run: pip-audit --format=json --output pip-audit.json || true
+
+      - name: 🔍 Análisis estático (SAST) con Bandit
+        run: bandit -r . -f json -o bandit.json || true
+
+      - name: 🐳 Escaneo de contenedores con Trivy
+        run: trivy image --format json -o trivy.json ubuntu:latest || true
+
+      - name: 📤 Subir reportes a DefectDojo
+        run: |
+          curl -X 'POST' \
+          'https://b1d2-186-169-67-103.ngrok-free.app/api/v2/import-scan/' \
+          -H 'accept: application/json' \
+          -H 'Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}' \
+          -H 'Content-Type: multipart/form-data' \
+          -F 'product_type_name=' \
+          -F 'active=' \
+          -F 'endpoint_to_add=' \
+          -F 'verified=' \
+          -F 'close_old_findings=' \
+          -F 'test_title=' \
+          -F 'engagement_name=python-sca' \
+          -F 'build_id=' \
+          -F 'deduplication_on_engagement=true' \
+          -F 'push_to_jira=' \
+          -F 'minimum_severity=Info' \
+          -F 'close_old_findings_product_scope=' \
+          -F 'apply_tags_to_endpoints=' \
+          -F 'create_finding_groups_for_all_findings=' \
+          -F 'engagement_end_date=' \
+          -F 'environment=' \
+          -F 'service=' \
+          -F 'commit_hash=' \
+          -F 'group_by=file_path' \
+          -F 'version=' \
+          -F 'tags=' \
+          -F 'apply_tags_to_findings=' \
+          -F 'api_scan_configuration=' \
+          -F 'product_name=Vulns' \
+          -F 'file=@pip-audit.json;type=application/json' \
+          -F 'auto_create_context=true' \
+          -F 'lead=' \
+          -F 'scan_type=pip-audit Scan' \
+          -F 'branch_tag=' \
+          -F 'source_code_management_uri=' \
+          -F 'engagement=' \
+          -F 'scan_date=' \
+
+          curl -X POST "https://b1d2-186-169-67-103.ngrok-free.app/api/v2/import-scan/" \
+          -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+          -H 'Content-Type: multipart/form-data' \
+          -F 'product_type_name=' \
+          -F 'active=' \
+          -F 'endpoint_to_add=' \
+          -F 'verified=' \
+          -F 'close_old_findings=' \
+          -F 'test_title=' \
+          -F 'engagement_name=python-sca' \
+          -F 'build_id=' \
+          -F 'deduplication_on_engagement=true' \
+          -F 'push_to_jira=' \
+          -F 'minimum_severity=Info' \
+          -F 'close_old_findings_product_scope=' \
+          -F 'apply_tags_to_endpoints=' \
+          -F 'create_finding_groups_for_all_findings=' \
+          -F 'engagement_end_date=' \
+          -F 'environment=' \
+          -F 'service=' \
+          -F 'commit_hash=' \
+          -F 'group_by=file_path' \
+          -F 'version=' \
+          -F 'tags=' \
+          -F 'apply_tags_to_findings=' \
+          -F 'api_scan_configuration=' \
+          -F 'product_name=Vulns' \
+          -F 'file=@bandit.json;type=application/json' \
+          -F 'auto_create_context=true' \
+          -F 'lead=' \
+          -F 'scan_type=Bandit Scan' \
+          -F 'branch_tag=' \
+          -F 'source_code_management_uri=' \
+          -F 'engagement=' \
+          -F 'scan_date=' \
+
+          curl -X POST "https://b1d2-186-169-67-103.ngrok-free.app/api/v2/import-scan/" \
+          -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+          -H 'Content-Type: multipart/form-data' \
+          -F 'product_type_name=' \
+          -F 'active=' \
+          -F 'endpoint_to_add=' \
+          -F 'verified=' \
+          -F 'close_old_findings=' \
+          -F 'test_title=' \
+          -F 'engagement_name=python-sca' \
+          -F 'build_id=' \
+          -F 'deduplication_on_engagement=true' \
+          -F 'push_to_jira=' \
+          -F 'minimum_severity=Info' \
+          -F 'close_old_findings_product_scope=' \
+          -F 'apply_tags_to_endpoints=' \
+          -F 'create_finding_groups_for_all_findings=' \
+          -F 'engagement_end_date=' \
+          -F 'environment=' \
+          -F 'service=' \
+          -F 'commit_hash=' \
+          -F 'group_by=file_path' \
+          -F 'version=' \
+          -F 'tags=' \
+          -F 'apply_tags_to_findings=' \
+          -F 'api_scan_configuration=' \
+          -F 'product_name=Vulns' \
+          -F 'file=@trivy.json;type=application/json' \
+          -F 'auto_create_context=true' \
+          -F 'lead=' \
+          -F 'scan_type=Trivy Scan' \
+          -F 'branch_tag=' \
+          -F 'source_code_management_uri=' \
+          -F 'engagement=' \
+          -F 'scan_date=' \
+
+      - name: Run security scan with DefectDojo
+        id: defectdojo_scan
+        run: |
+          response=$(curl -s -H "Authorization: Token ${{ secrets.DEFECTDOJO_TOKEN }}" \
+                         -X GET "https://b1d2-186-169-67-103.ngrok-free.app/api/v2/findings/?active=true&product_name=Vulns&severity=High,Critical")
+          echo "$response" > findings.json
+
+      - name: Fail if high or critical issues are found
+        run: |
+          RESULTS_COUNT=$(jq '.results | length' findings.json)
+          if [ "$RESULTS_COUNT" -gt 0 ]; then
+            echo "❌ $RESULTS_COUNT vulnerabilities found. Blocking merge."
+            exit 1
+          fi
