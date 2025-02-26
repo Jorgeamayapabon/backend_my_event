@@ -20,17 +20,17 @@ jobs:
           echo "${{ secrets.KEY_PEM }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.BACK_IP }} >> ~/.ssh/known_hosts
-      
-      - name: Crear archivo .env en el servidor
-        run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.BACK_IP }} << 'EOF'
-            echo "${{ secrets.ENV_FILE }}" > /home/${{ secrets.SSH_USER }}/backend_my_event/.env
-          EOF
 
       - name: Sincronizar archivos con rsync
         run: |
           rsync -avz --delete --exclude '__pycache__' --exclude '.git' ./ ${{ secrets.SSH_USER }}@${{ secrets.BACK_IP }}:/home/${{ secrets.SSH_USER }}/backend_my_event
 
+      - name: Crear archivo .env en el servidor
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.BACK_IP }} << 'EOF'
+            echo "${{ secrets.ENV_FILE }}" > /home/${{ secrets.SSH_USER }}/backend_my_event/.env
+          EOF
+      
       - name: Reiniciar contenedores en el servidor remoto
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.BACK_IP }} << 'EOF'
