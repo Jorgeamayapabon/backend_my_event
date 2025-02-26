@@ -1,7 +1,7 @@
 
 # SOLUCION RETO
 
-Se tomó este backend previamente desarrollado en FastAPI y se le agregaron pipelines de CI/CD. Se agregaron workflows para la automatizacion de la integracion con las practivas devsecops, una vez creados estos reportes se enviarian a la plataforma de gestion de vulnerabilidades, se escoge DefectDojo por ser open-source. La plataforma se buildea en la instancia clonando el repo de DefectDojo. En la automatizacion de CD, se toma la desicion de utilizar rsync para sincronizar los archivos del repo con los de la instancia, posterior reiniciar contenedores.
+Se tomó este backend previamente desarrollado en FastAPI y se le agregaron pipelines de CI/CD. Se agregaron workflows para la automatización de la integración con las prácticas DevSecOps. Una vez creados estos reportes, se enviarían a la plataforma de gestión de vulnerabilidades. Se escoge DefectDojo por ser open-source. La plataforma se construye en la instancia clonando el repositorio de DefectDojo. En la automatización de CD, se toma la decisión de utilizar rsync para sincronizar los archivos del repositorio con los de la instancia y posteriormente reiniciar los contenedores.
 
 [Ir a Configuración CI/CD](#setup-cicd)
 
