@@ -22,10 +22,23 @@ ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 docker-compose version
 # Clonar backend como ec2-user
 sudo -u ec2-user bash << 'EOT'
-cd /home/ec2-user
-git clone https://github.com/Jorgeamayapabon/backend_my_event.git
-cd backend_my_event
-docker compose up --build -d
+    cd /home/ec2-user
+    git clone https://github.com/Jorgeamayapabon/backend_my_event.git
+    cd backend_my_event
+    # Crear archivo .env con variables de entorno
+    cat > .env <<EOF
+        # DB Config
+        PSQL_USERNAME=XXXX
+        PSQL_PASSWORD=XXXX
+        PSQL_HOST=XXXX
+        PSQL_PORT=XXXX
+        PSQL_DB=XXXX
+
+        # JWT Config
+        SECRET_KEY=XXXX
+        ALGORITHM=XXXX
+    EOF
+    docker-compose up --build -d
 EOT
 
 # Confirmar finalización

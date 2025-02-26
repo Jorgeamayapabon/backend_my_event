@@ -25,13 +25,13 @@ docker-compose version
 
 # Clonar DefectDojo como ec2-user
 sudo -u ec2-user bash << 'EOT'
-cd /home/ec2-user
-git clone https://github.com/DefectDojo/django-DefectDojo.git
-cd django-DefectDojo
-docker-compose build
-docker-compose up -d
-sleep 200
-docker-compose logs initializer | grep "Admin password:"
+    cd /home/ec2-user
+    git clone https://github.com/DefectDojo/django-DefectDojo.git
+    cd django-DefectDojo
+    docker-compose build
+    docker-compose up -d
+    sleep 200
+    docker-compose logs initializer | grep "Admin password:"
 EOT
 
 # Confirmar finalización
