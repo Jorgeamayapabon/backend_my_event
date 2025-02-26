@@ -23,7 +23,7 @@ jobs:
 
       - name: Sincronizar archivos con rsync
         run: |
-          rsync -avz --delete --exclude '.git' ./ ${{ secrets.SSH_USER }}@${{ secrets.BACK_IP }}:/home/ec2-user/backend_my_event
+          rsync -avz --delete --exclude '__pycache__' --exclude '.git' ./ ${{ secrets.SSH_USER }}@${{ secrets.BACK_IP }}:/home/${{ secrets.SSH_USER }}/backend_my_event
 
       - name: Reiniciar contenedores en el servidor remoto
         run: |
