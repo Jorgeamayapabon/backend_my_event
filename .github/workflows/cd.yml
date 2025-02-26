@@ -1,0 +1,38 @@
+name: Seguridad con DefectDojo
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Deploy AWS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠️ Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: 🛠️ Configure AWS Creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: 🚀 Deploy to AWS
+        env:
+          PRIVATE_KEY: ${{ secrets.KEY_PEM }}
+          HOST: ${{ secrets.BACK_IP }}
+          USER: ec2-user
+          REPO_PATH: "/home/ec2-user/backend_my_event"
+        run: |
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $USER@$HOST << 'EOF'
+            cd $REPO_PATH
+            git pull origin master
+            docker-compose down
+            docker-compose up -d --build
+          EOF
