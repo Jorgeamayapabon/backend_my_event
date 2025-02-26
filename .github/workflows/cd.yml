@@ -1,4 +1,4 @@
-name: Seguridad con DefectDojo
+name: Deploy Backend
 
 on:
   push:
