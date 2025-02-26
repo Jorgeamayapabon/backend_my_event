@@ -23,7 +23,7 @@ jobs:
       
       - name: Crear archivo .env en el servidor
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.BACK_IP }} << 'EOF'
             echo "${{ secrets.ENV_FILE }}" > /home/***/backend_my_event/.env
           EOF
 
