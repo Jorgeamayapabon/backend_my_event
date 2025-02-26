@@ -1,9 +1,6 @@
 name: Seguridad con DefectDojo
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
@@ -40,7 +37,7 @@ jobs:
       - name: 📤 Subir reportes a DefectDojo
         run: |
           curl -X 'POST' \
-          'https://b1d2-186-169-67-103.ngrok-free.app/api/v2/import-scan/' \
+          'http://${{ secrets.DEFECTDOJO_IP }}:8080/api/v2/import-scan/' \
           -H 'accept: application/json' \
           -H 'Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}' \
           -H 'Content-Type: multipart/form-data' \
@@ -77,7 +74,7 @@ jobs:
           -F 'engagement=' \
           -F 'scan_date=' \
 
-          curl -X POST "https://b1d2-186-169-67-103.ngrok-free.app/api/v2/import-scan/" \
+          curl -X POST "http://${{ secrets.DEFECTDOJO_IP }}:8080/api/v2/import-scan/" \
           -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
           -H 'Content-Type: multipart/form-data' \
           -F 'product_type_name=' \
@@ -113,7 +110,7 @@ jobs:
           -F 'engagement=' \
           -F 'scan_date=' \
 
-          curl -X POST "https://b1d2-186-169-67-103.ngrok-free.app/api/v2/import-scan/" \
+          curl -X POST "http://${{ secrets.DEFECTDOJO_IP }}:8080/api/v2/import-scan/" \
           -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
           -H 'Content-Type: multipart/form-data' \
           -F 'product_type_name=' \
@@ -153,7 +150,7 @@ jobs:
         id: defectdojo_scan
         run: |
           response=$(curl -s -H "Authorization: Token ${{ secrets.DEFECTDOJO_TOKEN }}" \
-                         -X GET "https://b1d2-186-169-67-103.ngrok-free.app/api/v2/findings/?active=true&product_name=Vulns&severity=High,Critical")
+                         -X GET "http://${{ secrets.DEFECTDOJO_IP }}:8080/api/v2/findings/?active=true&product_name=Vulns&severity=High,Critical")
           echo "$response" > findings.json
 
       - name: Fail if high or critical issues are found
