@@ -19,15 +19,15 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.KEY_PEM }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.BACK_IP }} >> ~/.ssh/known_hosts
 
       - name: Sincronizar archivos con rsync
         run: |
-          rsync -avz --delete --exclude '.git' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/ec2-user/backend_my_event
+          rsync -avz --delete --exclude '.git' ./ ${{ secrets.SSH_USER }}@${{ secrets.BACK_IP }}:/home/ec2-user/backend_my_event
 
       - name: Reiniciar contenedores en el servidor remoto
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.BACK_IP }} << 'EOF'
             cd /ruta/del/proyecto/
             sudo docker-compose down
             sudo docker-compose up -d --build
