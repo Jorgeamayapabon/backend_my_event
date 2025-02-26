@@ -20,6 +20,12 @@ jobs:
           echo "${{ secrets.KEY_PEM }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.BACK_IP }} >> ~/.ssh/known_hosts
+      
+      - name: Crear archivo .env en el servidor
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            echo "${{ secrets.ENV_FILE }}" > /home/***/backend_my_event/.env
+          EOF
 
       - name: Sincronizar archivos con rsync
         run: |
