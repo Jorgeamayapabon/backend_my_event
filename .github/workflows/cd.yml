@@ -28,7 +28,7 @@ jobs:
       - name: Reiniciar contenedores en el servidor remoto
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.BACK_IP }} << 'EOF'
-            cd /ruta/del/proyecto/
+            cd /home/${{ secrets.SSH_USER }}/backend_my_event
             sudo docker-compose down
             sudo docker-compose up -d --build
           EOF
